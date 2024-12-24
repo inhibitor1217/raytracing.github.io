@@ -15,6 +15,10 @@ set ( CMAKE_CXX_EXTENSIONS        OFF )
 
 # Source
 
+set ( SOURCE_ONE_WEEKEND
+  src/InOneWeekend/main.cc
+)
+
 include_directories(src)
 
 # Specific compiler flags below. We're not going to add options for all possible compilers, but if
@@ -45,3 +49,4 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # Executables
+add_executable(inOneWeekend      ${EXTERNAL} ${SOURCE_ONE_WEEKEND})
