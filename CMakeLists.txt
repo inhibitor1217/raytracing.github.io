@@ -16,7 +16,9 @@ set ( CMAKE_CXX_EXTENSIONS        OFF )
 # Source
 
 set ( SOURCE_ONE_WEEKEND
+  src/InOneWeekend/color.h
   src/InOneWeekend/main.cc
+  src/InOneWeekend/vec3.h
 )
 
 include_directories(src)
