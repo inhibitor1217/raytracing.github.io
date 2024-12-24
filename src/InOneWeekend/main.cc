@@ -5,16 +5,16 @@
 #include "vec3.h"
 
 double hit_sphere(const point3& center, double radius, const ray& r) {
-  vec3 oc = r.origin() - center;
-  double a = dot(r.direction(), r.direction());
-  double b = 2.0 * dot(oc, r.direction());
-  double c = dot(oc, oc) - radius * radius;
-  double discriminant = b * b - 4 * a * c;
+  vec3 oc = center - r.origin();
+  double a = r.direction().length_squared();
+  double h = dot(oc, r.direction());
+  double c = oc.length_squared() - radius * radius;
+  double discriminant = h * h - a * c;
 
   if (discriminant < 0) {
     return -1.0;
   } else {
-    return (-b - std::sqrt(discriminant)) / (2.0 * a);
+    return (h - std::sqrt(discriminant)) / a;
   }
 }
 
