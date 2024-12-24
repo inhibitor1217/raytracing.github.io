@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.h"
+#include "interval.h"
 #include "vec3.h"
 
 class sphere : public hittable {
@@ -8,8 +9,7 @@ class sphere : public hittable {
   sphere(const point3& center, double radius)
       : center(center), radius(std::fmax(0, radius)) {}
 
-  bool hit(const ray& r, double t_min, double t_max,
-           hit_record& rec) const override {
+  bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
     vec3 oc = center - r.origin();
     double a = r.direction().length_squared();
     double h = dot(oc, r.direction());
@@ -22,9 +22,9 @@ class sphere : public hittable {
 
     double sqrt_d = std::sqrt(discriminant);
     double root = (h - sqrt_d) / a;
-    if (root < t_min || t_max < root) {
+    if (!ray_t.contains(root)) {
       root = (h + sqrt_d) / a;
-      if (root < t_min || t_max < root) {
+      if (!ray_t.contains(root)) {
         return false;
       }
     }
