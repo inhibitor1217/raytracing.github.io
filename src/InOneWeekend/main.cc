@@ -1,29 +1,17 @@
 #include <iostream>
+#include <memory>
 
 #include "color.h"
+#include "hittable_list.h"
 #include "ray.h"
+#include "sphere.h"
+#include "util.h"
 #include "vec3.h"
 
-double hit_sphere(const point3& center, double radius, const ray& r) {
-  vec3 oc = center - r.origin();
-  double a = r.direction().length_squared();
-  double h = dot(oc, r.direction());
-  double c = oc.length_squared() - radius * radius;
-  double discriminant = h * h - a * c;
-
-  if (discriminant < 0) {
-    return -1.0;
-  } else {
-    return (h - std::sqrt(discriminant)) / a;
-  }
-}
-
-color ray_color(const ray& r) {
-  vec3 O(0, 0, -1);
-  double t = hit_sphere(O, 0.5, r);
-  if (t > 0.0) {
-    vec3 N = unit_vector(r.at(t) - O);
-    return 0.5 * color(N.x() + 1, N.y() + 1, N.z() + 1);
+color ray_color(const ray& r, const hittable& world) {
+  hit_record rec;
+  if (world.hit(r, 0, infinity, rec)) {
+    return 0.5 * (rec.normal + color(1, 1, 1));
   }
 
   vec3 unit_direction = unit_vector(r.direction());
@@ -53,11 +41,15 @@ int main() {
   vec3 pixel_du = viewport_u / static_cast<double>(image_width);
   vec3 pixel_dv = viewport_v / static_cast<double>(image_height);
 
-  // viewport upper left corner
   vec3 viewport_upper_left =
       origin - vec3(0, 0, focal_length) - viewport_u * 0.5 - viewport_v * 0.5;
-  // position of the pixel (0, 0)
   vec3 pixel00 = viewport_upper_left + pixel_du * 0.5 + pixel_dv * 0.5;
+
+  // world
+  hittable_list world;
+
+  world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+  world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
 
   // render
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
@@ -68,7 +60,7 @@ int main() {
     for (int i = 0; i < image_width; ++i) {
       vec3 pixel_center = pixel00 + pixel_du * i + pixel_dv * j;
       ray r(origin, pixel_center - origin);
-      color pixel_color = ray_color(r);
+      color pixel_color = ray_color(r, world);
       write_color(std::cout, pixel_color);
     }
   }
